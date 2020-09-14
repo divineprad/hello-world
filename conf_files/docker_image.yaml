@@ -1,0 +1,43 @@
+---
+
+- name: Create docker image to copy webapp to container and push to dockerhub
+  hosts: localhost
+  vars:
+    image_name: your_username/copy_webapp
+    container_name: webapp
+  tasks:
+
+
+    - name: Cleanup existing containers
+      docker_container:
+         name: "{{ container_name }}"
+         state: absent
+
+    - name: Cleanup existing images
+      docker_image:
+        name: "{{ image_name }}" 
+        state: absent
+
+
+    - name: Build a docker image
+      docker_image:
+          name: "{{ image_name }}"
+          build:
+            path: /home/ansible/jenkins_ansible_docker/
+        #  tag: v1
+          source: build
+
+    - name: Login to docker dockerhub
+      docker_login:
+         username: your_username
+         password: your_password
+
+
+    - name: Push docker image to docker hub  
+      shell: docker push "{{ image_name }}"
+
+
+    - name: Logout of dockerhub
+      docker_login:
+          state: absent
+

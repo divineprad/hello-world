@@ -1,0 +1,37 @@
+---
+  - name: Create Docker container from the docker image and push to docker hosts
+    hosts: Docker_Host
+    vars:
+      image_name: your_username/copy_webapp
+      container_name: webapp
+
+    tasks:
+
+      - name: Stop existing containers
+        docker_container:
+          name: "{{ container_name }}"
+          state: stopped
+
+      - name: Remove current webapp containers
+        docker_container:
+           name:  "{{ container_name }}"
+           state: absent
+
+      - name: Remove existing images
+        docker_image:
+          name: "{{ image_name }}"
+          state: absent
+
+      - name: Pull Docker image from docker dockerhub
+        docker_image:
+          name: "{{ image_name }}"
+          source: pull
+
+      - name: Create docker container from docker images
+        docker_container:
+          name: "{{ container_name }}"
+          image:  "{{ image_name }}"
+          ports:
+            - 8080:8080
+          state: started
+
